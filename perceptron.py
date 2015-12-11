@@ -26,7 +26,7 @@ class Perceptron(object):
 
 	def run(self):
 		end = False
-		while not end and self.iter_count <= 1000:
+		while not end:
 			self.pp()
 			print 'error', self.ERROR
 			if len(self.ERROR):

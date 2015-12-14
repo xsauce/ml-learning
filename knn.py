@@ -4,46 +4,44 @@ class KNN(object):
 	def __init__(self, X, Y, k, p):
 		self.k = k
 		self.p = p
-		self.X = X
-		self.Y = Y
+		self.X = np.array(X)
+		self.Y = np.array(Y)
 
 	def run(self, x):
 		indices = self.find_near_k_direct(x)
 		near_k_classes = {}
 		for i in indices:
-			near_k_classes[i] = near_k_classes.setdefault(i, 0) + 1
-		return sorted(near_k_classes.items(), key=lambda x: x[0], reverse=True)[0][0]
+			lb = self.Y[i]
+			near_k_classes[lb] = near_k_classes.get(lb, 0) + 1
+		print near_k_classes
+		return sorted(near_k_classes.items(), key=lambda x: x[1], reverse=True)[0][0]
 
 	def find_near_k_direct(self, x):
-		distance_index = []
-		for index, ix in enumerate(self.X):
-			distance_index.append((self.get_distance(ix, x), index))
-		sorted_di = sorted(distance_index, key=lambda x: x[0])
-		return [x[1] for x in sorted_di[:self.k]]
-
-	def get_distance(self, ax, bx):
-		sum = 0
-		for a, b in zip(ax, bx):
-			sum += (abs(a -b )) ** self.p
-		return sum ** (1.0 / self.p)
+		diffmat = np.tile(x, (self.X.shape[0], 1)) - self.X
+		sqdiffmat = diffmat ** self.p
+		sqdistances = sqdiffmat.sum(axis=1)
+		distances = sqdistances ** 0.5
+		sorted_distance_indices = distances.argsort()
+		print sorted_distance_indices
+		return sorted_distance_indices[:self.k]
 
 if __name__ == '__main__':
 	X = [
 	[2,3],
-	[5,4],
-	[9,6],
-	[4,7],
-	[8,1],
+	[2,1],
+	[2,0],
+	[3,1],
+	[8,2],
 	[7,2]
 	]
 	Y = [
-	1,
-	2,
-	3,
-	4,
-	5,
-	6,
+	'A',
+	'B',
+	'A',
+	'C',
+	'E',
+	'F',
 	]
-	knn = KNN(X, Y, k=1, p=2)
+	knn = KNN(X, Y, k=6, p=2)
 	print knn.run([1,1])
 
